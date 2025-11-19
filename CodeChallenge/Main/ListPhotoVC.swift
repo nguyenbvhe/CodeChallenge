@@ -45,7 +45,7 @@ class ListPhotoVC: UIViewController {
             
             searchTextField.clearButtonMode = .whileEditing
             
-            // Style đẹp + hiệu ứng focus
+            // Style 
             searchTextField.layer.cornerRadius = 14
             searchTextField.layer.borderWidth = 1.5
             searchTextField.layer.borderColor = UIColor.systemGray4.cgColor
@@ -92,21 +92,18 @@ class ListPhotoVC: UIViewController {
         }
     }
 
-    // MARK: - UITextFieldDelegate + Validate siêu sạch (CHỈ 1 HÀM DUY NHẤT)
+    // MARK: - UITextFieldDelegate + Validate
     extension ListPhotoVC: UITextFieldDelegate {
-        
-        // Hàm DUY NHẤT xử lý tất cả: gõ, paste, swipe typing, bỏ dấu, giới hạn 15 ký tự
         func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
             
             let current = textField.text ?? ""
             var newText = (current as NSString).replacingCharacters(in: range, with: string)
             
-            // 1. Giới hạn 15 ký tự
             if newText.count > 15 {
                 newText = String(newText.prefix(15))
             }
             
-            // 2. Bỏ dấu + chỉ giữ ký tự hợp lệ
+         
             newText = newText.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
             
             let allowed = CharacterSet.alphanumerics
@@ -118,23 +115,18 @@ class ListPhotoVC: UIViewController {
                 .joined()
                 .lowercased()
             
-            // 3. Tự động cập nhật text field
             textField.text = newText
-            
-            // 4. Filter realtime
             viewModel.filterPhotos(with: newText)
-            
-            // 5. Trả false vì ta đã tự set text
             return false
         }
         
-        // Bấm nút Search trên bàn phím → ẩn
+        // Bấm nút Search trên bàn phím => ẩn
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             textField.resignFirstResponder()
             return true
         }
         
-        // Hiệu ứng focus đẹp
+        // Hiệu ứng focus
         func textFieldDidBeginEditing(_ textField: UITextField) {
             UIView.animate(withDuration: 0.25) {
                 textField.layer.borderColor = UIColor.systemBlue.cgColor
