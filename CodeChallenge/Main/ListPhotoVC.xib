@@ -27,13 +27,16 @@
                             <rect key="frame" x="0.0" y="110" width="393" height="742"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </tableView>
-                        <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="bạn cần tìm gì ?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cUJ-v2-vmq">
+                        <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="bạn cần tìm gì ?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cUJ-v2-vmq">
                             <rect key="frame" x="10" y="60" width="373" height="40"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="40" id="SpK-bE-7A7"/>
                             </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="-1" id="EJe-HK-7tp"/>
+                            </connections>
                         </textField>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>

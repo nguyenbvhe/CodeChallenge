@@ -36,7 +36,7 @@ class ListPhotoCells: UITableViewCell {
         photoImage.image = nil
         authorLabel.text = nil
         sizeLabel.text = nil
-        imageHeightConstraint.constant = 150 // reset height image
+       // imageHeightConstraint.constant = 150 // reset height image
         activityIndicator.startAnimating()
     }
     

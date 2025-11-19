@@ -4,17 +4,17 @@
 //
 //  Created by minhnguyen on 19/11/25.
 //
-
 import Foundation
 import UIKit
 
 class PhotoListViewModel {
+    
     private let photoService = PhotoService.shared
     
-    private(set) var photos: [ListPhotos] = [] {
+    private var allPhotos: [ListPhotos] = []
+    private(set) var filteredPhotos: [ListPhotos] = [] {
         didSet {
-            heightCache.removeAll()
-            updateHeightCache()
+            rebuildHeightCache()
             onPhotosUpdated?()
         }
     }
@@ -22,14 +22,21 @@ class PhotoListViewModel {
     var onPhotosUpdated: (() -> Void)?
     var onError: ((String) -> Void)?
     
-    private var heightCache: [IndexPath: CGFloat] = [:]
+    /// Cache chiều cao theo filteredPhotos
+    private var heightCache: [Int: CGFloat] = [:]
     
+    private var searchTask: DispatchWorkItem?
+    
+    
+    // MARK: - Fetch
     func fetchPhotos() {
         photoService.fetchPhotos { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let photos):
-                    self?.photos = photos
+                    self?.allPhotos = photos
+                    self?.filteredPhotos = photos
+                    
                 case .failure(let error):
                     self?.onError?(error.localizedDescription)
                 }
@@ -37,23 +44,59 @@ class PhotoListViewModel {
         }
     }
     
+    
+    // MARK: - Filter (debounce)
+    func filterPhotos(with text: String) {
+        
+        searchTask?.cancel()
+        
+        let task = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            
+            let query = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if query.isEmpty {
+                filteredPhotos = allPhotos
+            } else {
+                filteredPhotos = allPhotos.filter {
+                    $0.author.lowercased().contains(query) ||
+                    $0.id.contains(query)
+                }
+            }
+        }
+        
+        searchTask = task
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: task)
+    }
+    
+    
+    // MARK: - Table binding
     func numberOfRows() -> Int {
-        return photos.count
+        filteredPhotos.count
     }
     
     func photo(at indexPath: IndexPath) -> ListPhotos {
-        return photos[indexPath.row]
+        filteredPhotos[indexPath.row]
     }
     
     func estimatedHeight(at indexPath: IndexPath) -> CGFloat {
-        return heightCache[indexPath] ?? 400
+        return heightCache[indexPath.row] ?? 300
     }
     
-    private func updateHeightCache() {
-        let screenWidth = UIScreen.main.bounds.width - 32 // margin
-        for (index, photo) in photos.enumerated() {
-            let height = photo.calculatedHeight(for: screenWidth) + 80 // + label height
-            heightCache[IndexPath(row: index, section: 0)] = height
+    
+    // MARK: - Cache Height
+    private func rebuildHeightCache() {
+        heightCache.removeAll()
+        
+        let screenWidth = UIScreen.main.bounds.width - 32
+        
+        for (index, photo) in filteredPhotos.enumerated() {
+            
+            let imageHeight = photo.calculatedHeight(for: screenWidth)
+            let total = imageHeight + 80  // + label & padding
+            
+            heightCache[index] = total
         }
     }
 }
